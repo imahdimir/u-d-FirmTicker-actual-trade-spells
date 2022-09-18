@@ -16,8 +16,8 @@ class GDUrl :
         gj = json.load(fi)
 
     selff = gj['selff']
-    src = gj['src']
     src0 = gj['src0']
+    src1 = gj['src1']
     trg = gj['trg']
 
 gu = GDUrl()
@@ -62,10 +62,10 @@ def main() :
 
     ##
 
-    gds = GithubData(gu.src)
-    gds.overwriting_clone()
+    gs0 = GithubData(gu.src0)
+    gs0.overwriting_clone()
     ##
-    ds = gds.read_data()
+    ds = gs0.read_data()
     ##
     ds[c.trdble] = ds[c.ns].map(status_simplified)
     ##
@@ -75,26 +75,26 @@ def main() :
     ds = ds.drop(columns = c.jdt)
     ##
 
-    gd0 = GithubData(gu.src0)
-    gd0.overwriting_clone()
-    d0 = gd0.read_data()
-    d0.head()
+    gs1 = GithubData(gu.src1)
+    gs1.overwriting_clone()
+    d1 = gs1.read_data()
+    d1.head()
     ##
 
-    d0[c.sdt] = d0[c.sjdt].apply(vjd)
-    d0[c.edt] = d0[c.ejdt].apply(vjd)
+    d1[c.sdt] = d1[c.sjdt].apply(vjd)
+    d1[c.edt] = d1[c.ejdt].apply(vjd)
 
-    d0 = d0.drop(columns = [c.sjdt , c.ejdt])
+    d1 = d1.drop(columns = [c.sjdt , c.ejdt])
 
-    d0v = d0.head()
+    d0v = d1.head()
     ##
 
     ds[c.d] = ds[c.dt].dt.date
     ##
-    d0[c.d] = d0[c.sdt].dt.date
+    d1[c.d] = d1[c.sdt].dt.date
     ##
 
-    ds = ds.merge(d0 , on = [c.ftic , c.d] , how = 'left')
+    ds = ds.merge(d1 , on = [c.ftic , c.d] , how = 'left')
     ##
     ds[c.ismktopen] = ds[c.dt].ge(ds[c.sdt])
     ds[c.ismktopen] &= ds[c.dt].le(ds[c.edt])
@@ -109,11 +109,11 @@ def main() :
 
     ##
 
-    d1 = d0[[c.ftic]]
-    d1[c.dt] = d0[c.sdt]
+    d1 = d1[[c.ftic]]
+    d1[c.dt] = d1[c.sdt]
 
-    d2 = d0[[c.ftic]]
-    d2[c.dt] = d0[[c.edt]]
+    d2 = d1[[c.ftic]]
+    d2[c.dt] = d1[[c.edt]]
     ##
     d3 = pd.concat([d1 , d2])
     ##
@@ -223,10 +223,9 @@ def main() :
 
     ##
 
-    gds.rmdir()
-    gd0.rmdir()
+    gs0.rmdir()
+    gs1.rmdir()
     gdt.rmdir()
-
 
     ##
 
